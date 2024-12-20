@@ -30,8 +30,20 @@ import GenerateThumbnail from "@/components/GenerateThumbnail";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import { Id } from "@/convex/_generated/dataModel";
+import { useToast } from "@/hooks/use-toast";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { useRouter } from "next/navigation";
+import { VoiceType } from "@/types";
 
-const voiceCategories = ["alloy", "shimmer", "nova", "echo", "fable", "onyx"];
+const voicetypes: VoiceType[] = [
+  "alloy",
+  "shimmer",
+  "nova",
+  "echo",
+  "fable",
+  "onyx",
+];
 
 const formSchema = z.object({
   podcastTitle: z.string().min(2),
@@ -39,6 +51,7 @@ const formSchema = z.object({
 });
 
 const CreatePodcast = () => {
+  const router = useRouter();
   const [imagePrompt, setImagePrompt] = useState("");
   const [imageStorageId, setImageStorageId] = useState<Id<"_storage"> | null>(
     null
@@ -52,9 +65,13 @@ const CreatePodcast = () => {
   );
 
   const [voicePrompt, setVoicePrompt] = useState("");
-  const [voiceType, setVoiceType] = useState<string | null>(null);
+  const [voiceType, setVoiceType] = useState<VoiceType>("echo");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { toast } = useToast();
+
+  const createPodcast = useMutation(api.podcasts.createPodcast);
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -66,10 +83,46 @@ const CreatePodcast = () => {
   });
 
   // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
+  async function onSubmit(data: z.infer<typeof formSchema>) {
+    try {
+      setIsSubmitting(true);
+
+      if (!audioUrl || !imageUrl || !voiceType) {
+        toast({
+          title: "Please generate audio and image",
+        });
+        setIsSubmitting(false);
+        throw new Error("Please generate audio and image");
+      }
+
+      const podcast = await createPodcast({
+        podcastTitle: data.podcastTitle,
+        podcastDescription: data.podcastDescription,
+        audioUrl,
+        imageUrl,
+        voiceType,
+        imagePrompt,
+        voicePrompt,
+        views: 0,
+        audioDuration,
+        audioStorageId: audioStorageId!,
+        imageStorageId: imageStorageId!,
+      });
+
+      toast({
+        title: "Podcast created",
+      });
+
+      router.push("/");
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Error",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -106,7 +159,9 @@ const CreatePodcast = () => {
                 Select AI Voice
               </Label>
 
-              <Select onValueChange={(value) => setVoiceType(value)}>
+              <Select
+                onValueChange={(value) => setVoiceType(value as VoiceType)}
+              >
                 <SelectTrigger
                   className={cn(
                     "text-16 w-full border-none bg-black-1 text-gray-1 focus-visible:ring-orange-1"
@@ -118,7 +173,7 @@ const CreatePodcast = () => {
                   />
                 </SelectTrigger>
                 <SelectContent className="text-16 border-none bg-black-1 font-bold text-white-1 focus:ring-orange-1">
-                  {voiceCategories.map((category) => (
+                  {voicetypes.map((category) => (
                     <SelectItem
                       key={category}
                       value={category}
@@ -170,7 +225,13 @@ const CreatePodcast = () => {
               setAudioDuration={setAudioDuration}
             />
 
-            <GenerateThumbnail />
+            <GenerateThumbnail
+              setImage={setImageUrl}
+              setImageStorageId={setImageStorageId}
+              image={imageUrl}
+              imagePrompt={imagePrompt}
+              setImagePrompt={setImagePrompt}
+            />
 
             <div className="mt-10 w-full">
               <Button
