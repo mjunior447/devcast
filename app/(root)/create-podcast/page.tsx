@@ -36,14 +36,7 @@ import { api } from "@/convex/_generated/api";
 import { useRouter } from "next/navigation";
 import { VoiceType } from "@/types";
 
-const voicetypes: VoiceType[] = [
-  "alloy",
-  "shimmer",
-  "nova",
-  "echo",
-  "fable",
-  "onyx",
-];
+const voicetypes = ["alloy", "shimmer", "nova", "echo", "fable", "onyx"];
 
 const formSchema = z.object({
   podcastTitle: z.string().min(2),
@@ -65,7 +58,7 @@ const CreatePodcast = () => {
   );
 
   const [voicePrompt, setVoicePrompt] = useState("");
-  const [voiceType, setVoiceType] = useState<VoiceType>("echo");
+  const [voiceType, setVoiceType] = useState<VoiceType>("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -73,7 +66,6 @@ const CreatePodcast = () => {
 
   const createPodcast = useMutation(api.podcasts.createPodcast);
 
-  // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -82,7 +74,6 @@ const CreatePodcast = () => {
     },
   });
 
-  // 2. Define a submit handler.
   async function onSubmit(data: z.infer<typeof formSchema>) {
     try {
       setIsSubmitting(true);
@@ -159,9 +150,7 @@ const CreatePodcast = () => {
                 Select AI Voice
               </Label>
 
-              <Select
-                onValueChange={(value) => setVoiceType(value as VoiceType)}
-              >
+              <Select onValueChange={(value) => setVoiceType(value)}>
                 <SelectTrigger
                   className={cn(
                     "text-16 w-full border-none bg-black-1 text-gray-1 focus-visible:ring-orange-1"
