@@ -18,7 +18,7 @@ export interface TopPodcastersProps {
   name: string;
   podcast: {
     podcastTitle: string;
-    pocastId: Id<"podcasts">;
+    podcastId: Id<"podcasts">;
   }[];
   totalPodcasts: number;
 }
@@ -120,7 +120,7 @@ export interface PodcastCardProps {
 }
 
 export interface CarouselProps {
-  fansLikeDetail: TopPodcastersProps[];
+  fansLikeYouDetail: TopPodcastersProps[];
 }
 
 export interface ProfileCardProps {
