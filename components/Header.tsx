@@ -11,7 +11,9 @@ const Header = ({
   return (
     <header className="flex items-center justify-between">
       {title ? (
-        <h1 className={cn("text-18 font-bold text-white-1")}>{title}</h1>
+        <h1 className={cn(`text-18 font-bold text-white-1 ${titleClassname}`)}>
+          {title}
+        </h1>
       ) : (
         <div />
       )}
