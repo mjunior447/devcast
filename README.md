@@ -25,3 +25,9 @@ A podcast SaaS application with OpenAI integration
    ```
 3. Then, at the project root, run `npx convex dev`
 4. At a separate terminal, run `npm run dev`
+
+### Screenshots
+
+![devcast-login](https://github.com/user-attachments/assets/b0e2aaa9-e933-42ce-a51f-c12dc14403a6)
+
+![devcast-main-section](https://github.com/user-attachments/assets/a384d4ac-a4e0-4d3a-b660-5b7f61ae71a8)
